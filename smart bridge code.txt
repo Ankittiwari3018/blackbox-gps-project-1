@@ -1,0 +1,49 @@
+#include <Servo.h>
+
+Servo servo1;  // Create servo object for motor 1
+Servo servo2;  // Create servo object for motor 2
+
+const int trigPin = 9;  // Ultrasonic sensor trigger pin
+const int echoPin = 10; // Ultrasonic sensor echo pin
+
+const int thresholdDistance = 50;  // Minimum distance for object detection (cm)
+const int objectHeight = 10;      // Minimum object height to trigger movement (cm)
+const int holdTime = 60000;        // Time to hold servos in position (milliseconds)
+
+long duration;                // variable for pulse duration
+long distance;                 // variable for distance calculation
+
+void setup() {
+  servo1.attach(6);  // Attach servo 1 to pin 6
+  servo2.attach(7);  // Attach servo 2 to pin 7
+  pinMode(trigPin, OUTPUT); // Set trigger pin as output
+  pinMode(echoPin, INPUT);  // Set echo pin as input
+}
+
+void loop() {
+  // Trigger ultrasonic sensor
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  // Read echo pulse duration
+  duration = pulseIn(echoPin, HIGH);
+
+  // Calculate distance in centimeters
+  distance = duration * 0.034 / 2;
+
+  // Check if object is within range and tall enough
+  if (distance <= thresholdDistance && distance > 0 && distance >= objectHeight) {
+    // Move servos to 90 degrees
+    servo1.write(90);
+    servo2.write(90);
+    delay(holdTime);  // Hold position for 1 minute
+  } 
+
+  // Move servos back to 0 degrees
+  servo1.write(0);
+  servo2.write(0);
+  delay(1000);  // Wait 1 second before next measurement
+}
